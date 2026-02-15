@@ -27,4 +27,78 @@ pub mod kleos_protocol {
         ctx.accounts
             .initialize_protocol(protocol_fee_bps, ctx.bumps)
     }
+
+    pub fn update_protocol(
+        ctx: Context<UpdateProtocol>,
+        protocol_fee_bps: u16,
+        treasury: Pubkey,
+        paused: bool,
+    ) -> Result<()> {
+        ctx.accounts.update_protocol(protocol_fee_bps, treasury, paused)
+    }
+
+    pub fn create_market(
+        ctx: Context<CreateMarket>,
+        start_ts: i64,
+        end_ts: i64,
+        items_hash: [u8; 32],
+        item_count: u8,
+    ) -> Result<()> {
+        ctx.accounts.create_market(
+            start_ts,
+            end_ts,
+            items_hash,
+            item_count,
+            ctx.bumps,
+        )
+    }
+
+    pub fn edit_market(
+        ctx: Context<EditMarket>,
+        start_ts: i64,
+        end_ts: i64,
+        items_hash: [u8; 32],
+        item_count: u8,
+    ) -> Result<()> {
+        ctx.accounts
+            .edit_market(start_ts, end_ts, items_hash, item_count)
+    }
+
+    pub fn open_market(
+        ctx: Context<OpenMarket>,
+    ) -> Result<()> {
+        ctx.accounts.open_market()
+    }
+
+    pub fn place_position(
+        ctx: Context<PlacePosition>,
+        selected_item_index: u8,
+        raw_stake: u64,
+        effective_stake: u128,
+    ) -> Result<()> {
+        ctx.accounts.place_position(
+            selected_item_index,
+            raw_stake,
+            effective_stake,
+            ctx.bumps,
+        )
+    }
+
+    pub fn close_market(
+        ctx: Context<CloseMarket>,
+    ) -> Result<()> {
+        ctx.accounts.close_market()
+    }
+
+    pub fn settle_market(
+        ctx: Context<SettleMarket>,
+    ) -> Result<()> {
+        ctx.accounts.settle_market(ctx.bumps)
+    }
+
+    pub fn claim_payout(
+        ctx: Context<ClaimPayout>,
+    ) -> Result<()> {
+        ctx.accounts.claim_payout(ctx.bumps)
+    }
 }
