@@ -7,7 +7,7 @@ pub struct Position {
   pub user: Pubkey,
   pub selected_item_index: u8,
   pub raw_stake: u64,
-  pub effective_stake: u64,
+  pub effective_stake: u128,
   pub claimed: bool,
   pub bump: u8
 }

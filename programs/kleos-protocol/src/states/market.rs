@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use crate::MarketStatus;
+use crate::{MAX_ITEMS, MarketStatus};
 
 #[account]
 #[derive(InitSpace)]
@@ -13,7 +13,7 @@ pub struct Market {
   pub total_raw_stake: u64,
   pub total_effective_stake: u128,
   pub winning_item_index: u8,
-  pub total_winning_effective_stake: u128,
+  pub effective_stake_per_item: [u128; MAX_ITEMS],
   pub protocol_fee_amount: u64,
   pub distributable_pool: u64,
   pub token_mint: Pubkey,
