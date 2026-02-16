@@ -4,6 +4,9 @@ members = [
 ]
 resolver = "2"
 
+[patch.crates-io]
+blake3 = { git = "https://github.com/BLAKE3-team/BLAKE3.git", tag = "1.8.2" }
+
 [profile.release]
 overflow-checks = true
 lto = "fat"

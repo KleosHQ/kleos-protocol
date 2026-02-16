@@ -7,14 +7,12 @@ pub mod enums;
 pub mod errors;
 pub mod instructions;
 pub mod states;
-pub mod utils;
 
 pub use constants::*;
 pub use enums::*;
 pub use errors::*;
 pub use instructions::*;
 pub use states::*;
-pub use utils::*;
 
 #[program]
 pub mod kleos_protocol {
