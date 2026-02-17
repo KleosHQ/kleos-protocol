@@ -1,5 +1,6 @@
+import * as anchor from "@coral-xyz/anchor";
 import { expect } from "chai";
-import { accounts, delay, marketPda, program, protocolPda, SUITE_DELAY_MS } from "./helpers";
+import { accounts, admin, delay, marketPda, program, protocolPda, SUITE_DELAY_MS } from "./helpers";
 
 describe("close_market", () => {
   before(async () => await delay(SUITE_DELAY_MS));
@@ -11,7 +12,11 @@ describe("close_market", () => {
     const market = marketPda(program.programId, marketCount - 1);
 
     try {
-      await program.methods.closeMarket().accounts(accounts({ market })).rpc();
+      await program.methods.closeMarket().accounts(accounts({
+        signer: admin.publicKey,
+        market,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })).rpc();
       expect.fail("should have thrown");
     } catch (e: unknown) {
       const err = e as { message?: string; errorCode?: { code?: string; number?: number } };

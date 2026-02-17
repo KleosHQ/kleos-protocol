@@ -34,6 +34,7 @@ describe("edit_market", () => {
         adminAuthority: admin.publicKey,
         protocol,
         market,
+        systemProgram: anchor.web3.SystemProgram.programId,
       }))
       .rpc();
 
@@ -62,6 +63,7 @@ describe("edit_market", () => {
           adminAuthority: admin.publicKey,
           protocol,
           market,
+          systemProgram: anchor.web3.SystemProgram.programId,
         }))
         .rpc();
       expect.fail("should have thrown");

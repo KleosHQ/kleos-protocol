@@ -20,6 +20,7 @@ describe("update_protocol", () => {
       .accounts(accounts({
         adminAuthority: admin.publicKey,
         protocol,
+        systemProgram: anchor.web3.SystemProgram.programId,
       }))
       .rpc();
 
@@ -40,6 +41,7 @@ describe("update_protocol", () => {
         .accounts(accounts({
           adminAuthority: other.publicKey,
           protocol,
+          systemProgram: anchor.web3.SystemProgram.programId,
         }))
         .signers([other])
         .rpc();
@@ -58,6 +60,7 @@ describe("update_protocol", () => {
         .accounts(accounts({
           adminAuthority: admin.publicKey,
           protocol,
+          systemProgram: anchor.web3.SystemProgram.programId,
         }))
         .rpc();
       expect.fail("should have thrown");

@@ -4,8 +4,12 @@ use crate::{errors::ProtocolError, Market, MarketStatus};
 
 #[derive(Accounts)]
 pub struct CloseMarket<'info> {
+    pub signer: Signer<'info>,
+
     #[account(mut)]
     pub market: Account<'info, Market>,
+
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> CloseMarket<'info> {

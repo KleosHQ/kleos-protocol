@@ -50,28 +50,25 @@ impl<'info> ClaimPayout<'info> {
         // Prevent double claim
         require!(!self.position.claimed, ProtocolError::AlreadyClaimed);
 
-        // Must be winning position
+        // position.market == market.key() (has_one = market)
+        // vault.key() == market.vault (constraint below)
         require!(
-            self.position.selected_item_index == self.market.winning_item_index,
-            ProtocolError::InvalidMarketState
-        );
-
-        // Get total winning effective stake from on-chain aggregation
-        let total_winning_effective_stake =
-            self.market.effective_stake_per_item[self.market.winning_item_index as usize];
-
-        require!(
-            total_winning_effective_stake > 0,
+            self.user_token_account.mint == self.market.token_mint,
             ProtocolError::InvalidStakeAmount
         );
 
-        // Compute payout
+        require!(
+            self.market.total_effective_stake > 0,
+            ProtocolError::InvalidStakeAmount
+        );
+
+        // Payout: (position.effective_stake / market.total_effective_stake) × market.distributable_pool
         let payout = self
             .position
             .effective_stake
             .checked_mul(self.market.distributable_pool as u128)
             .ok_or(ProtocolError::MathOverflow)?
-            .checked_div(total_winning_effective_stake)
+            .checked_div(self.market.total_effective_stake)
             .ok_or(ProtocolError::MathOverflow)?;
 
         let payout_u64: u64 = payout.try_into().map_err(|_| ProtocolError::MathOverflow)?;

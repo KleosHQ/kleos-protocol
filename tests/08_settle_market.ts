@@ -3,6 +3,7 @@ import {
   getOrCreateAssociatedTokenAccount,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+import * as anchor from "@coral-xyz/anchor";
 import { expect } from "chai";
 import {
   accounts,
@@ -40,12 +41,14 @@ describe("settle_market", () => {
 
     try {
       await program.methods.settleMarket().accounts(accounts({
+        signer: admin.publicKey,
         protocol,
         market,
         vaultAuthority,
         vault: m.vault,
         treasuryTokenAccount: treasuryAta.address,
         tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId,
       })).rpc();
       expect.fail("should have thrown");
     } catch (e: unknown) {

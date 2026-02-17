@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-kleos_protocol = "kLeosk5KrdC8uXDRh66QhvwXqnjfkeadb7mU4ekGqcK"
+kleos_protocol = "C4yTgqHinYtRhqJrd9RRE19yrKKcf2LEfiS99Hq1waww"
 
 [registry]
 url = "https://api.apr.dev"

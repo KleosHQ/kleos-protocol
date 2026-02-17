@@ -5,6 +5,8 @@ use crate::{constants::BPS_DENOMINATOR, errors::ProtocolError, Market, MarketSta
 
 #[derive(Accounts)]
 pub struct SettleMarket<'info> {
+    pub signer: Signer<'info>,
+
     #[account(
         seeds = [b"protocol"],
         bump = protocol.bump,
@@ -28,6 +30,7 @@ pub struct SettleMarket<'info> {
     pub treasury_token_account: Account<'info, TokenAccount>,
 
     pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> SettleMarket<'info> {
@@ -47,21 +50,6 @@ impl<'info> SettleMarket<'info> {
           self.market.total_raw_stake > 0,
           ProtocolError::InvalidStakeAmount
       );
-
-      // Determine winner on-chain
-      let mut winning_index: u8 = 0;
-      let mut highest: u128 = 0;
-
-      for i in 0..self.market.item_count as usize {
-          let stake = self.market.effective_stake_per_item[i];
-
-          if stake > highest {
-              highest = stake;
-              winning_index = i as u8;
-          }
-      }
-
-      require!(highest > 0, ProtocolError::InvalidStakeAmount);
 
       // Compute protocol fee
       let protocol_fee = self
@@ -104,10 +92,8 @@ impl<'info> SettleMarket<'info> {
       }
 
       // Store results
-      self.market.winning_item_index = winning_index;
       self.market.protocol_fee_amount = protocol_fee;
       self.market.distributable_pool = distributable_pool;
-
       self.market.status = MarketStatus::Settled;
 
       Ok(())

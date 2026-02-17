@@ -13,6 +13,8 @@ pub struct UpdateProtocol<'info> {
         has_one = admin_authority @ ProtocolError::Unauthorized
     )]
     pub protocol: Account<'info, Protocol>,
+
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> UpdateProtocol<'info> {

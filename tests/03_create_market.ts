@@ -28,7 +28,11 @@ describe("create_market", () => {
     protocol = protocolPda(program.programId);
     await program.methods
       .updateProtocol(300, admin.publicKey, false)
-      .accounts(accounts({ adminAuthority: admin.publicKey, protocol }))
+      .accounts(accounts({
+        adminAuthority: admin.publicKey,
+        protocol,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      }))
       .rpc();
 
     tokenMint = await createMint(
@@ -192,7 +196,11 @@ describe("create_market", () => {
   it("rejects when protocol is paused", async () => {
     await program.methods
       .updateProtocol(300, admin.publicKey, true)
-      .accounts(accounts({ adminAuthority: admin.publicKey, protocol }))
+      .accounts(accounts({
+        adminAuthority: admin.publicKey,
+        protocol,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      }))
       .rpc();
 
     const marketCount = (await program.account.protocol.fetch(protocol)).marketCount.toNumber();
@@ -229,7 +237,11 @@ describe("create_market", () => {
 
     await program.methods
       .updateProtocol(300, admin.publicKey, false)
-      .accounts(accounts({ adminAuthority: admin.publicKey, protocol }))
+      .accounts(accounts({
+        adminAuthority: admin.publicKey,
+        protocol,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      }))
       .rpc();
   });
 });

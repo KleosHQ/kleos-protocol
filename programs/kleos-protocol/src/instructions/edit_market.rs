@@ -16,6 +16,8 @@ pub struct EditMarket<'info> {
 
     #[account(mut)]
     pub market: Account<'info, Market>,
+
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> EditMarket<'info> {

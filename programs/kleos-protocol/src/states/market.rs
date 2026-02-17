@@ -12,7 +12,6 @@ pub struct Market {
   pub status: MarketStatus,
   pub total_raw_stake: u64,
   pub total_effective_stake: u128,
-  pub winning_item_index: u8,
   pub effective_stake_per_item: [u128; MAX_ITEMS],
   pub protocol_fee_amount: u64,
   pub distributable_pool: u64,

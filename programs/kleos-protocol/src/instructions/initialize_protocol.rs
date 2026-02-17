@@ -22,6 +22,7 @@ impl<'info> InitializeProtocol<'info> {
     pub fn initialize_protocol(
         &mut self,
         protocol_fee_bps: u16,
+        treasury: Pubkey,
         bumps: InitializeProtocolBumps,
     ) -> Result<()> {
         require!(
@@ -31,7 +32,7 @@ impl<'info> InitializeProtocol<'info> {
 
         self.protocol.set_inner(Protocol {
             admin_authority: self.admin.key(),
-            treasury: self.admin.key(),
+            treasury,
             protocol_fee_bps,
             market_count: 0,
             paused: false,

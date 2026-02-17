@@ -9,10 +9,10 @@ import {
 } from "./helpers";
 
 describe("initialize_protocol", () => {
-  it.skip("initializes protocol with valid fee (3%)", async () => {
+  it("initializes protocol with valid fee (3%)", async () => {
     const protocol = protocolPda(program.programId);
     await program.methods
-      .initializeProtocol(300)
+      .initializeProtocol(300, admin.publicKey)
       .accounts(accounts({
         admin: admin.publicKey,
         protocol,
@@ -32,7 +32,7 @@ describe("initialize_protocol", () => {
     const protocol = protocolPda(program.programId);
     try {
       await program.methods
-        .initializeProtocol(100)
+        .initializeProtocol(100, admin.publicKey)
         .accounts(accounts({
           admin: admin.publicKey,
           protocol,
@@ -58,6 +58,7 @@ describe("initialize_protocol", () => {
       .accounts(accounts({
         adminAuthority: admin.publicKey,
         protocol,
+        systemProgram: anchor.web3.SystemProgram.programId,
       }))
       .rpc();
     let data = await program.account.protocol.fetch(protocol);
@@ -68,6 +69,7 @@ describe("initialize_protocol", () => {
       .accounts(accounts({
         adminAuthority: admin.publicKey,
         protocol,
+        systemProgram: anchor.web3.SystemProgram.programId,
       }))
       .rpc();
     data = await program.account.protocol.fetch(protocol);

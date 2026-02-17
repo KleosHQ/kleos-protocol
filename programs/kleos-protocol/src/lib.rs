@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("kLeosk5KrdC8uXDRh66QhvwXqnjfkeadb7mU4ekGqcK");
+declare_id!("C4yTgqHinYtRhqJrd9RRE19yrKKcf2LEfiS99Hq1waww");
 
 pub mod constants;
 pub mod enums;
@@ -21,9 +21,10 @@ pub mod kleos_protocol {
     pub fn initialize_protocol(
         ctx: Context<InitializeProtocol>,
         protocol_fee_bps: u16,
+        treasury: Pubkey,
     ) -> Result<()> {
         ctx.accounts
-            .initialize_protocol(protocol_fee_bps, ctx.bumps)
+            .initialize_protocol(protocol_fee_bps, treasury, ctx.bumps)
     }
 
     pub fn update_protocol(

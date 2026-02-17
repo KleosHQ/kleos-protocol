@@ -89,10 +89,7 @@ impl<'info> CreateMarket<'info> {
 
             total_raw_stake: 0,
             total_effective_stake: 0,
-
             effective_stake_per_item: [0u128; MAX_ITEMS],
-
-            winning_item_index: 0,
             protocol_fee_amount: 0,
             distributable_pool: 0,
 
