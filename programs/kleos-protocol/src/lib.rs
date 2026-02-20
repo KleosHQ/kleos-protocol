@@ -52,6 +52,22 @@ pub mod kleos_protocol {
         )
     }
 
+    pub fn create_market_native(
+        ctx: Context<CreateMarketNative>,
+        start_ts: i64,
+        end_ts: i64,
+        items_hash: [u8; 32],
+        item_count: u8,
+    ) -> Result<()> {
+        ctx.accounts.create_market_native(
+            start_ts,
+            end_ts,
+            items_hash,
+            item_count,
+            ctx.bumps,
+        )
+    }
+
     pub fn edit_market(
         ctx: Context<EditMarket>,
         start_ts: i64,
@@ -83,6 +99,20 @@ pub mod kleos_protocol {
         )
     }
 
+    pub fn place_position_native(
+        ctx: Context<PlacePositionNative>,
+        selected_item_index: u8,
+        raw_stake: u64,
+        effective_stake: u128,
+    ) -> Result<()> {
+        ctx.accounts.place_position_native(
+            selected_item_index,
+            raw_stake,
+            effective_stake,
+            ctx.bumps,
+        )
+    }
+
     pub fn close_market(
         ctx: Context<CloseMarket>,
     ) -> Result<()> {
@@ -95,9 +125,21 @@ pub mod kleos_protocol {
         ctx.accounts.settle_market(ctx.bumps)
     }
 
+    pub fn settle_market_native(
+        ctx: Context<SettleMarketNative>,
+    ) -> Result<()> {
+        ctx.accounts.settle_market_native(ctx.bumps)
+    }
+
     pub fn claim_payout(
         ctx: Context<ClaimPayout>,
     ) -> Result<()> {
         ctx.accounts.claim_payout(ctx.bumps)
+    }
+
+    pub fn claim_payout_native(
+        ctx: Context<ClaimPayoutNative>,
+    ) -> Result<()> {
+        ctx.accounts.claim_payout_native(ctx.bumps)
     }
 }

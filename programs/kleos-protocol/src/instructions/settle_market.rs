@@ -1,7 +1,13 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Token, TokenAccount, Transfer};
 
-use crate::{constants::BPS_DENOMINATOR, errors::ProtocolError, Market, MarketStatus, Protocol};
+use crate::{
+    constants::BPS_DENOMINATOR,
+    errors::ProtocolError,
+    Market,
+    MarketStatus,
+    Protocol,
+};
 
 #[derive(Accounts)]
 pub struct SettleMarket<'info> {
@@ -44,6 +50,9 @@ impl<'info> SettleMarket<'info> {
           self.market.status == MarketStatus::Closed,
           ProtocolError::InvalidMarketState
       );
+
+      // Must be SPL token market
+      require!(!self.market.is_native, ProtocolError::InvalidStakeAmount);
 
       // Ensure stake exists
       require!(

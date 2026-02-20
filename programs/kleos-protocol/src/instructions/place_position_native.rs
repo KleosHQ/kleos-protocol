@@ -1,12 +1,17 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, Token, TokenAccount, Transfer};
 
 use crate::{
-    constants::MAX_MULTIPLIER, errors::ProtocolError, Market, MarketStatus, Position, Protocol,
+    constants::MAX_MULTIPLIER,
+    errors::ProtocolError,
+    Market,
+    MarketStatus,
+    Position,
+    Protocol,
 };
 
+/// Place a position on a native-SOL market. Transfers lamports from user to vault PDA.
 #[derive(Accounts)]
-pub struct PlacePosition<'info> {
+pub struct PlacePositionNative<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
@@ -28,96 +33,61 @@ pub struct PlacePosition<'info> {
     )]
     pub position: Account<'info, Position>,
 
-    #[account(constraint = token_mint.key() == market.token_mint @ ProtocolError::InvalidStakeAmount)]
-    pub token_mint: Account<'info, Mint>,
-
-    #[account(mut)]
-    pub user_token_account: Account<'info, TokenAccount>,
-
+    /// CHECK: PDA that holds lamports; validated by seeds
     #[account(
-      mut,
-      constraint = vault.key() == market.vault @ ProtocolError::InvalidStakeAmount
+        mut,
+        seeds = [b"vault", market.key().as_ref()],
+        bump
     )]
-    pub vault: Account<'info, TokenAccount>,
+    pub vault: UncheckedAccount<'info>,
 
-    pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
 }
 
-impl<'info> PlacePosition<'info> {
-    pub fn place_position(
+impl<'info> PlacePositionNative<'info> {
+    pub fn place_position_native(
         &mut self,
         selected_item_index: u8,
         raw_stake: u64,
         effective_stake: u128,
-        bumps: PlacePositionBumps,
+        bumps: PlacePositionNativeBumps,
     ) -> Result<()> {
-        // Protocol must not be paused
         require!(!self.protocol.paused, ProtocolError::ProtocolPaused);
-
-        // Must be SPL token market
-        require!(!self.market.is_native, ProtocolError::InvalidStakeAmount);
-
-        // Market must be open
         require!(
             self.market.status == MarketStatus::Open,
             ProtocolError::InvalidMarketState
         );
+        require!(self.market.is_native, ProtocolError::InvalidStakeAmount);
 
         let current_time = Clock::get()?.unix_timestamp;
-
-        // Ensure market not expired
         require!(
             current_time < self.market.end_ts,
             ProtocolError::InvalidTimestamp
         );
-
-        // Validate stake
         require!(raw_stake > 0, ProtocolError::InvalidStakeAmount);
-
-        // Validate item index
         require!(
             selected_item_index < self.market.item_count,
             ProtocolError::InvalidItemIndex
         );
-
-        // Enforce effective stake cap
         require!(
             effective_stake <= raw_stake as u128 * MAX_MULTIPLIER,
             ProtocolError::EffectiveStakeTooLarge
         );
-
-        // Validate correct mint
-        require!(
-            self.user_token_account.mint == self.market.token_mint,
-            ProtocolError::InvalidStakeAmount
-        );
-
-        require!(
-            self.vault.mint == self.market.token_mint,
-            ProtocolError::InvalidStakeAmount
-        );
-
+        require!(effective_stake > 0, ProtocolError::InvalidStakeAmount);
         require!(
             self.vault.key() == self.market.vault,
             ProtocolError::InvalidStakeAmount
         );
 
-        require!(effective_stake > 0, ProtocolError::InvalidStakeAmount);
-
-        // Transfer tokens to vault
         let cpi_ctx = CpiContext::new(
-            self.token_program.to_account_info(),
-            Transfer {
-                from: self.user_token_account.to_account_info(),
+            self.system_program.to_account_info(),
+            anchor_lang::system_program::Transfer {
+                from: self.user.to_account_info(),
                 to: self.vault.to_account_info(),
-                authority: self.user.to_account_info(),
             },
         );
+        anchor_lang::system_program::transfer(cpi_ctx, raw_stake)?;
 
-        anchor_spl::token::transfer(cpi_ctx, raw_stake)?;
-
-        // Store position
         self.position.set_inner(Position {
             market: self.market.key(),
             user: self.user.key(),
@@ -128,7 +98,6 @@ impl<'info> PlacePosition<'info> {
             bump: bumps.position,
         });
 
-        // Update market totals
         self.market.total_raw_stake = self
             .market
             .total_raw_stake
@@ -142,7 +111,6 @@ impl<'info> PlacePosition<'info> {
             .ok_or(ProtocolError::MathOverflow)?;
 
         let idx = selected_item_index as usize;
-
         self.market.effective_stake_per_item[idx] = self.market.effective_stake_per_item[idx]
             .checked_add(effective_stake)
             .ok_or(ProtocolError::MathOverflow)?;

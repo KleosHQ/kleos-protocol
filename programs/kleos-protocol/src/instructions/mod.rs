@@ -1,19 +1,27 @@
 pub mod initialize_protocol;
 pub mod update_protocol;
 pub mod create_market;
+pub mod create_market_native;
 pub mod edit_market;
 pub mod open_market;
 pub mod place_position;
+pub mod place_position_native;
 pub mod close_market;
 pub mod settle_market;
+pub mod settle_market_native;
 pub mod claim_payout;
+pub mod claim_payout_native;
 
 pub use initialize_protocol::*;
 pub use update_protocol::*;
 pub use create_market::*;
+pub use create_market_native::*;
 pub use edit_market::*;
 pub use open_market::*;
 pub use place_position::*;
+pub use place_position_native::*;
 pub use close_market::*;
 pub use settle_market::*;
+pub use settle_market_native::*;
 pub use claim_payout::*;
+pub use claim_payout_native::*;

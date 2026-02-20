@@ -32,7 +32,7 @@ function itemsHashFromLabel(_label: string): number[] {
   return new Array(32).fill(0).map((_, i) => (i % 3)) as number[];
 }
 
-describe.only("realtime opinion market (E2E)", () => {
+describe("realtime opinion market (E2E)", () => {
   let protocol: anchor.web3.PublicKey;
   let market: anchor.web3.PublicKey;
   let tokenMint: anchor.web3.PublicKey;
@@ -221,6 +221,7 @@ describe.only("realtime opinion market (E2E)", () => {
           protocol,
           market,
           position: positionPda(program.programId, market, p.keypair.publicKey),
+          tokenMint,
           userTokenAccount: p.ata,
           vault: vaultAddress,
           tokenProgram: TOKEN_PROGRAM_ID,

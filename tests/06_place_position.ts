@@ -23,6 +23,7 @@ describe("place_position", () => {
   let protocol: anchor.web3.PublicKey;
   let market: anchor.web3.PublicKey;
   let vault: anchor.web3.PublicKey;
+  let tokenMint: anchor.web3.PublicKey;
   let user: anchor.web3.Keypair;
   let userAta: anchor.web3.PublicKey;
   /** Separate user for "rejects" tests so we create a new position each time (program checks run before init). */
@@ -36,6 +37,7 @@ describe("place_position", () => {
     market = marketPda(program.programId, marketCount - 2);
     const m = await program.account.market.fetch(market);
     vault = m.vault;
+    tokenMint = m.tokenMint;
 
     user = anchor.web3.Keypair.generate();
     const tx = new anchor.web3.Transaction().add(
@@ -102,6 +104,7 @@ describe("place_position", () => {
         protocol,
         market,
         position,
+        tokenMint,
         userTokenAccount: userAta,
         vault,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -117,8 +120,8 @@ describe("place_position", () => {
     expect(pos.rawStake.toNumber()).to.equal(rawStake);
     expect(pos.claimed).to.be.false;
 
-    const m = await program.account.market.fetch(market);
-    expect(m.totalRawStake.toNumber()).to.equal(rawStake);
+    const marketData = await program.account.market.fetch(market);
+    expect(marketData.totalRawStake.toNumber()).to.equal(rawStake);
   });
 
   it("rejects raw_stake 0", async () => {
@@ -131,6 +134,7 @@ describe("place_position", () => {
           protocol,
           market,
           position,
+          tokenMint,
           userTokenAccount: rejectUserAta,
           vault,
           tokenProgram: TOKEN_PROGRAM_ID,
@@ -171,6 +175,7 @@ describe("place_position", () => {
           protocol,
           market,
           position,
+          tokenMint,
           userTokenAccount: rejectUserAta,
           vault,
           tokenProgram: TOKEN_PROGRAM_ID,
@@ -208,6 +213,7 @@ describe("place_position", () => {
           protocol,
           market,
           position,
+          tokenMint,
           userTokenAccount: rejectUserAta,
           vault,
           tokenProgram: TOKEN_PROGRAM_ID,

@@ -47,6 +47,9 @@ impl<'info> ClaimPayout<'info> {
             ProtocolError::InvalidMarketState
         );
 
+        // Must be SPL token market
+        require!(!self.market.is_native, ProtocolError::InvalidStakeAmount);
+
         // Prevent double claim
         require!(!self.position.claimed, ProtocolError::AlreadyClaimed);
 

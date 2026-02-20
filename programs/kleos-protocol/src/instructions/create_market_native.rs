@@ -1,17 +1,17 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, Token, TokenAccount};
-use anchor_spl::associated_token::AssociatedToken;
 
 use crate::{
-    Protocol,
-    Market,
-    MarketStatus,
     errors::ProtocolError,
     constants::MAX_ITEMS,
+    Market,
+    MarketStatus,
+    Protocol,
 };
 
+/// Create a market that accepts native SOL (lamports) instead of SPL tokens.
+/// The vault is the vault_authority PDA itself, which holds lamports directly.
 #[derive(Accounts)]
-pub struct CreateMarket<'info> {
+pub struct CreateMarketNative<'info> {
     #[account(mut)]
     pub admin_authority: Signer<'info>,
 
@@ -32,45 +32,27 @@ pub struct CreateMarket<'info> {
     )]
     pub market: Account<'info, Market>,
 
-    /// CHECK: PDA authority for vault
+    /// CHECK: PDA for vault; when is_native, this PDA holds lamports directly; validated by seeds
     #[account(
         seeds = [b"vault", market.key().as_ref()],
         bump
     )]
     pub vault_authority: UncheckedAccount<'info>,
 
-    #[account(
-        init,
-        payer = admin_authority,
-        associated_token::mint = token_mint,
-        associated_token::authority = vault_authority
-    )]
-    pub vault: Account<'info, TokenAccount>,
-
-    pub token_mint: Account<'info, Mint>,
-
-    pub token_program: Program<'info, Token>,
-    pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
 }
 
-impl<'info> CreateMarket<'info> {
-    pub fn create_market(
+impl<'info> CreateMarketNative<'info> {
+    pub fn create_market_native(
         &mut self,
         start_ts: i64,
         end_ts: i64,
         items_hash: [u8; 32],
         item_count: u8,
-        bumps: CreateMarketBumps,
+        bumps: CreateMarketNativeBumps,
     ) -> Result<()> {
-
-        // Protocol must not be paused
         require!(!self.protocol.paused, ProtocolError::ProtocolPaused);
-
-        // Validate timestamps
         require!(end_ts > start_ts, ProtocolError::InvalidTimestamp);
-
-        // Validate item count
         require!(item_count > 1, ProtocolError::InvalidItemIndex);
         require!(
             item_count as usize <= MAX_ITEMS,
@@ -93,13 +75,12 @@ impl<'info> CreateMarket<'info> {
             protocol_fee_amount: 0,
             distributable_pool: 0,
 
-            token_mint: self.token_mint.key(),
-            vault: self.vault.key(),
+            token_mint: anchor_lang::system_program::ID,
+            vault: self.vault_authority.key(),
             bump: bumps.market,
-            is_native: false,
+            is_native: true,
         });
 
-        // Increment market counter
         self.protocol.market_count = self
             .protocol
             .market_count

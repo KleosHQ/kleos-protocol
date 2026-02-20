@@ -17,5 +17,7 @@ pub struct Market {
   pub distributable_pool: u64,
   pub token_mint: Pubkey,
   pub vault: Pubkey,
-  pub bump: u8
+  pub bump: u8,
+  /// When true, market uses native SOL (lamports); vault is vault_authority PDA.
+  pub is_native: bool,
 }
